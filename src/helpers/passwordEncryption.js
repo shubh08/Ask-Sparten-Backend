@@ -2,6 +2,7 @@ var bcrypt = require('bcrypt-nodejs');
 
 var crypt = {};
 var saltRounds = 10;
+let saltro = 10;
 
 crypt.createHash = function (data, successCallback, failureCallback) {
     bcrypt.genSalt(saltRounds, function (err, salt) {
