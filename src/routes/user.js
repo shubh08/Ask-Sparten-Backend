@@ -139,6 +139,23 @@ router.post('/answerQuestion', function (req, res, next) {
 });
 
 
+router.get('/loadQuestion/:id', function (req, res, next) {
+    console.log("Here in acceptAnswer")
+    let questionID = req.params.id
+    console.log("Question ID", questionID)
+
+    question.findById(questionID).exec((err, questionRes) => {
+        if (err || questionRes == null) {
+            var error = { message: "Question not found!"}
+            next(error);
+        } else {
+            res.status(200).send({ question : questionRes});
+        }
+    })
+
+});
+
+
 router.put('/acceptAnswer', function (req, res, next) {
     console.log("Here in acceptAnswer")
     let questionID = req.body.questionID
@@ -309,7 +326,7 @@ router.put('/downvoteAnswer', function (req, res, next) {
 
 router.use((error, req, res, next) => {
     res.writeHead(201, {
-        'Content-Type': 'text/plain'
+        'Content-Type': 'application/json'
     });
     res.end(JSON.stringify(error));
 })
@@ -319,7 +336,7 @@ router.use((req, res, next) => {
     var errors = "Something went wrong!";
     message.push(errors);
     res.writeHead(201, {
-        'Content-Type': 'text/plain'
+        'Content-Type': 'application/json'
     });
     res.end(JSON.stringify(message));
 })
