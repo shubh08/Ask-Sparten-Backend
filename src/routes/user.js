@@ -324,6 +324,43 @@ router.put('/downvoteAnswer', function (req, res, next) {
 
 });
 
+router.post('/search', function (req, res, next) {
+    
+    const type = req.body.type
+    const searchQuery = req.body.searchQuery.toLowerCase()
+    const searchResult = []
+    question.find().exec((err, questions) => {
+        if (err) {
+            var error = { message: "Error while searching"}
+            next(error);
+            //next(err);
+        } else {
+            console.log('questions', questions)
+            if(type=='tag')
+            {
+                questions.forEach(question => {
+                    for(let tag of question.tags)
+                    console.log("tag", tag)
+                    console.log("type of Question Tags",typeof question.tags)
+                    if(question.tags.includes(searchQuery))
+                    searchResult.push(question)
+                });
+            }
+            else
+            {
+                questions.forEach(question => {
+                    if(question.title.toLowerCase().includes(searchQuery) || question.questionText.toLowerCase().includes(searchQuery))
+                    searchResult.push(question)
+                });
+            }
+            res.status(200).send({ questions: searchResult });
+        }
+    });
+   
+});
+
+
+
 router.use((error, req, res, next) => {
     res.writeHead(201, {
         'Content-Type': 'application/json'
