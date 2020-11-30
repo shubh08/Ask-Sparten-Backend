@@ -18,8 +18,8 @@ const questionSchema = new Schema(
       },
       
     postDate: {
-        type:Date,
-        default:moment()
+        type:String,
+        default:moment().format("dddd, MMMM Do YYYY, h:mm:ss a")
     },
     tags : [],
     answers: [],

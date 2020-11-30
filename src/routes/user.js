@@ -49,7 +49,7 @@ router.post('/login', function (req, res, next) {
         } else {
             bcrypt.compare(req.body.password, user.password, function (err, result) {
                 if (result) {
-                    res.status(200).send({ message: "Logged In succesfully", id:user._id});
+                    res.status(200).send({ message: "Logged In succesfully", id:user._id,name:user.name, email:user.email});
                 } else {
                     var error = { message: "Invalid Password"}
                     next(error);
@@ -65,7 +65,7 @@ router.post('/ask', function (req, res, next) {
     const questionText = req.body.questionText;
     const askedBy = req.body.askedBy;
     const tags = req.body.tags
-    let time = moment()
+    let time = moment().format("dddd, MMMM Do YYYY, h:mm:ss a");
     
     //const DOB = req.body.DOB;
 
@@ -107,7 +107,7 @@ router.post('/answerQuestion', function (req, res, next) {
     console.log("Here in id", req.body.questionID)
     let answerObject = {   answer : req.body.answer,
          answeredBy : req.body.answeredBy,
-        time : moment(),
+        time : moment().format("dddd, MMMM Do YYYY, h:mm:ss a"),
         acceptStatus : 'false',
         _id : mongoose.Types.ObjectId(),
         upvote : 0,
@@ -136,6 +136,71 @@ router.post('/answerQuestion', function (req, res, next) {
                     } )
             }
         })
+});
+
+
+router.get('/loadQuestion/:id', function (req, res, next) {
+    console.log("Here in acceptAnswer")
+    let questionID = req.params.id
+    console.log("Question ID", questionID)
+
+    question.findById(questionID).exec((err, questionRes) => {
+        if (err || questionRes == null) {
+            var error = { message: "Question not found!"}
+            next(error);
+        } else {
+            res.status(200).send({ question : questionRes});
+        }
+    })
+
+});
+
+
+router.get('/myQuestions/:id', function (req, res, next) {
+    console.log("Here in my Questions")
+    let userID = req.params.id
+    console.log("User ID", userID)
+
+    question.find({'askedBy.id':userID}).exec((err, questionRes) => {
+        if (err || questionRes == null) {
+            var error = { message: "Question not found!"}
+            next(error);
+        } else {
+            res.status(200).send({ questions : questionRes});
+        }
+    })
+
+});
+
+
+router.get('/myAnswers/:id', function (req, res, next) {
+    console.log("Here in my myAnswers")
+    let userID = req.params.id
+    console.log("User ID", userID)
+    let result = []
+    question.find().exec((err, questions) => {
+        if (err) {
+            next(err);
+        } else {
+            
+            for(let i=0;i<questions.length;i++)
+            {
+                let answerIDS = questions[i].answers
+                console.log('Answer IDS', answerIDS)
+                for(let k=0;k<answerIDS.length;k++)
+                {
+                    if(answerIDS[k].answeredBy!=undefined && answerIDS[k].answeredBy.id==userID)
+                    {
+                        console.log('questions matched', questions[i])
+                        result.push(questions[i]);
+                        break;
+                    }
+                }
+            }
+            res.status(200).send({ questions: result });
+        }
+    });
+
 });
 
 
