@@ -411,7 +411,7 @@ router.post('/search', function (req, res, next) {
    
            //return res.json({ source: 'cache', data: JSON.parse(photos) })
                        console.log('Data Returned from Redis searchInfo@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@',searchInfo);
-                       callback(null,searchInfo);
+                       res.status(200).send({ questions: searchInfo });
        } else {
         console.log('Data Not found in  Redis GetProfile--------------------------------------------------------------------------------------------------------');
         
