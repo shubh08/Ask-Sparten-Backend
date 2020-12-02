@@ -394,7 +394,7 @@ router.put('/downvoteAnswer', function (req, res, next) {
 });
 
 router.post('/search', function (req, res, next) {
-    
+    console.log('Inside search functionality', JSON.stringify(req.body))
     const type = req.body.type
     const searchQuery = req.body.searchQuery.toLowerCase()
     const searchResult = []
@@ -404,7 +404,7 @@ router.post('/search', function (req, res, next) {
     }
 
     const search = JSON.stringify(searchObj);
-
+    
    // Try fetching the result from Redis first in case we have it cached
     return client.get(search, (err, searchInfo) => {
     
@@ -442,7 +442,7 @@ router.post('/search', function (req, res, next) {
                     });
                 }
                 // Save the  API response in Redis store,  data expire time in 3600 seconds, it means one hour
-                client.setex(search, 3600,JSON.stringify(searchResult))
+                client.setex(search, 600,JSON.stringify(searchResult))
                 res.status(200).send({ questions: searchResult });
             }
         });
