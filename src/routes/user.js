@@ -411,7 +411,7 @@ router.post('/search', function (req, res, next) {
    
            //return res.json({ source: 'cache', data: JSON.parse(photos) })
                        console.log('Data Returned from Redis searchInfo@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@',searchInfo);
-                       res.status(200).send({ questions: searchInfo });
+                       res.status(200).send({ questions: JSON.parse(searchInfo) });
        } else {
         console.log('Data Not found in  Redis GetProfile--------------------------------------------------------------------------------------------------------');
         
@@ -440,7 +440,7 @@ router.post('/search', function (req, res, next) {
                     });
                 }
                 // Save the  API response in Redis store,  data expire time in 3600 seconds, it means one hour
-                client.setex(search, 3600,searchResult)
+                client.setex(search, 3600,JSON.stringify(searchResult))
                 res.status(200).send({ questions: searchResult });
             }
         });
