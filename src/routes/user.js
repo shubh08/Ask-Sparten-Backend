@@ -7,6 +7,8 @@ const saltRounds = 10;
 var moment = require('moment');
 //const { Mongoose } = require('mongoose');
 var mongoose = require('mongoose');
+const redis = require('../helpers/Redis');
+const client = redis.Client;
 
 
 router.post('/signup', function (req, res, next) {
@@ -394,33 +396,63 @@ router.post('/search', function (req, res, next) {
     const type = req.body.type
     const searchQuery = req.body.searchQuery.toLowerCase()
     const searchResult = []
-    question.find().exec((err, questions) => {
-        if (err) {
-            var error = { message: "Error while searching"}
-            next(error);
-            //next(err);
-        } else {
-            console.log('questions', questions)
-            if(type=='tag')
-            {
-                questions.forEach(question => {
-                    for(let tag of question.tags)
-                    console.log("tag", tag)
-                    console.log("type of Question Tags",typeof question.tags)
-                    if(question.tags.includes(searchQuery))
-                    searchResult.push(question)
-                });
+    const searchObj = {
+        type : req.body.type,
+        searchQuery : req.body.searchQuery.toLowerCase()
+    }
+
+    const search = JSON.stringify(searchObj);
+
+   // Try fetching the result from Redis first in case we have it cached
+    return client.get(search, (err, searchInfo) => {
+    
+       // If that key exists in Redis store
+       if (searchInfo) {
+   
+           //return res.json({ source: 'cache', data: JSON.parse(photos) })
+                       console.log('Data Returned from Redis searchInfo@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@',searchInfo);
+                       callback(null,searchInfo);
+       } else {
+        console.log('Data Not found in  Redis GetProfile--------------------------------------------------------------------------------------------------------');
+        
+        question.find().exec((err, questions) => {
+            if (err) {
+                var error = { message: "Error while searching"}
+                next(error);
+                //next(err);
+            } else {
+                console.log('questions', questions)
+                if(type=='tag')
+                {
+                    questions.forEach(question => {
+                        for(let tag of question.tags)
+                        console.log("tag", tag)
+                        console.log("type of Question Tags",typeof question.tags)
+                        if(question.tags.includes(searchQuery))
+                        searchResult.push(question)
+                    });
+                }
+                else
+                {
+                    questions.forEach(question => {
+                        if(question.title.toLowerCase().includes(searchQuery) || question.questionText.toLowerCase().includes(searchQuery))
+                        searchResult.push(question)
+                    });
+                }
+                // Save the  API response in Redis store,  data expire time in 3600 seconds, it means one hour
+                client.setex(search, 3600,JSON.stringify(searchResult))
+                res.status(200).send({ questions: searchResult });
             }
-            else
-            {
-                questions.forEach(question => {
-                    if(question.title.toLowerCase().includes(searchQuery) || question.questionText.toLowerCase().includes(searchQuery))
-                    searchResult.push(question)
-                });
-            }
-            res.status(200).send({ questions: searchResult });
-        }
-    });
+        });
+
+
+       }
+    
+    }
+    )
+
+
+
    
 });
 
