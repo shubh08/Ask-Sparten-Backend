@@ -440,7 +440,7 @@ router.post('/search', function (req, res, next) {
                     });
                 }
                 // Save the  API response in Redis store,  data expire time in 3600 seconds, it means one hour
-                client.setex(search, 3600,JSON.stringify(searchResult))
+                client.setex(search, 3600,searchResult)
                 res.status(200).send({ questions: searchResult });
             }
         });
