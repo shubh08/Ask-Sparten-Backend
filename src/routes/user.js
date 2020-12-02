@@ -142,7 +142,7 @@ router.post('/answerQuestion', function (req, res, next) {
 
 
 router.get('/loadQuestion/:id', function (req, res, next) {
-    console.log("Here in acceptAnswer")
+    console.log("Here in loadQuestion")
     let questionID = req.params.id
     console.log("Question ID", questionID)
 
@@ -207,7 +207,7 @@ router.get('/myAnswers/:id', function (req, res, next) {
 
 
 router.get('/loadQuestion/:id', function (req, res, next) {
-    console.log("Here in acceptAnswer")
+    console.log("Here in loadquestion by id")
     let questionID = req.params.id
     console.log("Question ID", questionID)
 
@@ -246,6 +246,8 @@ router.put('/acceptAnswer', function (req, res, next) {
                 }
             }
             console.log('After modification', questionRes)
+            questionRes.acceptStatus = 'true'
+            
             const newQuestion = new question(questionRes);
             newQuestion.save((err, ques) => {
                 if (err) {

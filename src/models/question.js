@@ -23,6 +23,10 @@ const questionSchema = new Schema(
     },
     tags : [],
     answers: [],
+    acceptStatus :{
+      type:String,
+      default:'false'
+  }
   }
 );
 questionSchema.plugin(uniqueValidator);
