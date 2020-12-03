@@ -96,7 +96,8 @@ router.get('/loadQuestions', function (req, res, next) {
             next(err);
         } else {
             console.log('questions', questions)
-            res.status(200).send({ questions: questions });
+
+            res.status(200).send({ questions: questions.reverse() });
         }
     });
 });
@@ -151,6 +152,11 @@ router.get('/loadQuestion/:id', function (req, res, next) {
             var error = { message: "Question not found!"}
             next(error);
         } else {
+            let answers = questionRes.answers;
+            console.log('Answers here',answers)
+            answers.sort(function(a, b) {
+                return b.upvote - a.upvote;
+            });
             res.status(200).send({ question : questionRes});
         }
     })
