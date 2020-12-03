@@ -46,6 +46,7 @@ router.post('/login', function (req, res, next) {
            next();
         }
         else if (user == null) {
+            console.log('Used doesn not exists!')
             var error = { message: "user does not exist"}
             next(error);
         } else {
