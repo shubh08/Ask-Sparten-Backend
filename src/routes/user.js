@@ -213,6 +213,98 @@ router.get('/myAnswers/:id', function (req, res, next) {
 });
 
 
+
+router.get('/loadTopTag', function (req, res, next) {
+    console.log("Here in load top tags")
+    
+    var map = new Map();
+    let result = {}
+
+    question.find().exec((err, questions) => {
+        if (err) {
+            next(err);
+        } else {
+            
+            for(let i=0;i<questions.length;i++)
+            {
+                let tags = questions[i].tags
+                console.log('tags IDS', tags)
+                for(let k=0;k<tags.length;k++)
+                {
+                    if(map.has(tags[k]))
+                    {
+                        let count = map.get(tags[k]);
+                        count= count+1;
+                        map.set(tags[k], count);
+                    }
+                    else
+                    {
+                        map.set(tags[k], 1);
+                    }
+                }
+            }
+            map[Symbol.iterator] = function* () {
+                yield* [...this.entries()].sort((a, b) => b[1] - a[1]);
+            }
+            let i=0;
+            let labels = []
+            let data= []
+            for (let [key, value] of map) {  
+                   // get data sorted
+                if(i==6)
+                    break;
+                labels.push(key)
+                data.push(value)
+                i++;
+            }
+            console.log('Final map', map)
+            res.status(200).send({ questions: {lables:labels.slice(0,5), data:data.slice(0,5)} });
+        }
+    });
+
+});
+
+
+router.get('/loadTopQuestions', function (req, res, next) {
+    console.log("Here in load top tags")
+    var map = new Map();
+    let result = {}
+    let labels = []
+    let data= []
+    question.find().exec((err, questions) => {
+        if (err) {
+            next(err);
+        } else {
+            
+            for(let i=0;i<questions.length;i++)
+            {
+                let answersLength = questions[i].answers.length
+                map.set(questions[i].questionText, answersLength)
+                
+            }
+            map[Symbol.iterator] = function* () {
+                yield* [...this.entries()].sort((a, b) => b[1] - a[1]);
+            }
+            let i=0;
+            let labels = []
+            let data= []
+            for (let [key, value] of map) {  
+                   // get data sorted
+                if(i==6)
+                    break;
+                labels.push(key)
+                data.push(value)
+                i++;
+            }
+            console.log('Final map', map)
+            res.status(200).send({ questions: {lables:labels.slice(0,5), data:data.slice(0,5)} });
+        }
+    });
+
+});
+
+
+
 router.get('/loadQuestion/:id', function (req, res, next) {
     console.log("Here in loadquestion by id")
     let questionID = req.params.id
