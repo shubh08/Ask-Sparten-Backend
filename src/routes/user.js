@@ -155,7 +155,7 @@ router.get('/loadQuestion/:id', function (req, res, next) {
             let answers = questionRes.answers;
             console.log('Answers here',answers)
             answers.sort(function(a, b) {
-                return b.upvote - a.upvote;
+                return ((b.upvote - b.downvote) - (a.upvote - a.downvote));
             });
             res.status(200).send({ question : questionRes});
         }
